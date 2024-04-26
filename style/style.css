@@ -1,0 +1,59 @@
+.main {
+
+    display: block;
+
+    width: 661px;
+    height: 763px;
+
+    padding-top: 1px;
+
+    background-color: #C4C4C4;
+}
+
+.page__main {
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main__input {
+
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.input {
+
+    display: block;
+
+    width: 500px;
+    height: 61px;
+
+    font-family: 'Roboto';
+    font-weight: 400;
+    font-size: 48px;
+}
+
+.main__input::placeholder {
+
+    font-size: 32px;
+    color: lightgray;
+}
+
+.select {
+
+    display: block;
+
+    width: 500px;
+
+    font-family: 'Roboto';
+    font-weight: 400;
+    font-size: 30px;
+}
+
+.main__select {
+
+    margin-left: auto;
+    margin-right: auto;
+}
