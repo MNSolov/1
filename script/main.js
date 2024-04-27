@@ -1,4 +1,5 @@
 const delayRequest = 1000;
+const selectLevel = 5;
 
 const input = document.querySelector( '.input' );
 
@@ -21,13 +22,39 @@ async function readFromInput() {
         responce = null;
 
         selectRemove( document.querySelector( '.select' ) );
+        return;
     }
     
     if ( !responce ) return;
-            
-    console.log( responce );
 
-    createSelect( responce );
+    let resultSearch = copyResultOfSearch ( responce, selectLevel, 'name', 'login', 'stargazers_count' );
+
+    let select = createSelect( resultSearch );
+
+    let selectClickResult = decoratorSelectClick ( selectClick, resultSearch );
+
+    select.addEventListener( 'click', selectClickResult );
+}
+
+function selectClick ( event, resultSearch ) {
+
+    selectRemove ( document.querySelector( '.select' ) );
+
+    let objCard = resultSearch.find( item => item.name === event.target.textContent );
+
+    console.log ( objCard );
+
+    //console.log( event.target );
+    //console.log( resultSearch );
+}
+
+function decoratorSelectClick ( callback, resultSearch ) {
+
+    return function () {
+
+        callback.call( this, ...arguments, resultSearch,  );
+    }
+    //event.target.classList.add( 'option--selected' );
 }
 
 function selectRemove( select ) {
@@ -40,7 +67,7 @@ function selectRemove( select ) {
 
 function createSelect( responce ) {
 
-    let selectLength = ( responce.items.length > 5 ) ? 5 : responce.item.length;
+    
     let option;
     
     selectRemove( document.querySelector( '.select' ) );
@@ -48,11 +75,13 @@ function createSelect( responce ) {
     let select = document.createElement( 'select' );
 
     select.setAttribute( 'multiple', true );
+    select.setAttribute( 'size', responce.length );
 
-    for( let i = 0; i < selectLength; i++ ){
+    for( let i = 0; i < responce.length; i++ ){
 
         option = document.createElement( 'option' );
-        option.textContent = responce.items[i].name;
+        option.textContent = responce[i].name;
+        option.classList.add( 'option' );
         select.append( option );
     }
 
@@ -60,6 +89,8 @@ function createSelect( responce ) {
     select.classList.add( 'main__select' );
 
     document.querySelector('.main').append(select);
+
+    return select;
 }
 
 function debounceDecorator ( cb, delay ) {
@@ -145,3 +176,43 @@ class HttpError extends Error {
     }
 }
 
+function searchProperty ( obj, property, result ) {
+
+    for ( let key in obj ) {
+
+        if ( typeof ( obj[key] ) === 'object' ) {
+
+            result = searchProperty( obj[key], property, result );
+        }
+
+        if ( key === property )
+            return obj[key];
+    }
+
+    return result;
+}
+
+function copyObj( obj, ...args ) {
+
+    let result = {};
+
+    for ( let elem of args ) {
+
+        result[elem] = searchProperty( obj, elem );
+    }
+
+    return result;
+}
+
+function copyResultOfSearch ( obj, length, ...property ) {
+
+    let lengthCopy = ( obj.items.length > length ) ? length : obj.items.length;
+    let result = [];
+
+    for ( let i = 0; i < lengthCopy; i++ ) {
+
+        result[i] = copyObj( obj.items[i], ...property )
+    }
+
+    return result;
+}

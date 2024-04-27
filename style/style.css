@@ -50,6 +50,36 @@
     font-family: 'Roboto';
     font-weight: 400;
     font-size: 30px;
+
+    background-color: #E3E3E3;
+
+    overflow: hidden;
+}
+
+.option {
+
+    border: 2px solid black;
+}
+
+.option:checked {
+
+    background-color: #65CDF9;
+}
+
+.option--selected {
+
+    background-color: #65CDF9;
+}
+
+
+.option:hover {
+
+    background-color: #65CDF9;
+}
+
+.option:optional {
+
+    background-color: #65CDF9;
 }
 
 .main__select {
