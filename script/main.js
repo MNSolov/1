@@ -1,33 +1,41 @@
-const delayRequest = 1000;
-const selectLevel = 5;
+const delayRequest = 700;   //Время задержки до отправки запроса на сервер, мс
+
+const selectLevel = 5;      //Количество пунктов в выпадающем меню
+
+const urlRequest = 'https://api.github.com/search/repositories'; //Адрес для отправки запроса на GitHub
+
+const cardInfoObject = { Name: 'name', Owner: 'login', Stars: 'stargazers_count' };    //Поля в карточке и соответствующие им свойства
+                                                                                        //в ответе сервера
 
 const input = document.querySelector( '.input' );
 
 const sendRequest = debounceDecorator( send, delayRequest );
 
-input.addEventListener( 'input', readFromInput );
+input.addEventListener( 'input', requestSearch );
 
-async function readFromInput() {
+async function requestSearch() {
 
     let text = this.value;
     let responce;
 
     try {
         
-        responce = await sendRequest ( text );
+        responce = await sendRequest ( urlRequest, text );
     
     } catch( error ) {
+
+        if ( error instanceof RequestError ) return;
 
         console.log ( error );
         responce = null;
 
-        selectRemove( document.querySelector( '.select' ) );
+        removeElement( document.querySelector( '.select' ) );
         return;
     }
-    
+   
     if ( !responce ) return;
 
-    let resultSearch = copyResultOfSearch ( responce, selectLevel, 'name', 'login', 'stargazers_count' );
+    let resultSearch = copyResultOfSearch ( responce, selectLevel, ...Object.values( cardInfoObject ) );
 
     let select = createSelect( resultSearch );
 
@@ -38,14 +46,71 @@ async function readFromInput() {
 
 function selectClick ( event, resultSearch ) {
 
-    selectRemove ( document.querySelector( '.select' ) );
+    let objCard = findObj ( resultSearch );
 
-    let objCard = resultSearch.find( item => item.name === event.target.textContent );
+    if ( !objCard ) {
 
-    console.log ( objCard );
+        alert( 'Данные не найдены. Попробуйте еще раз' );
+        return;
+    }
 
-    //console.log( event.target );
-    //console.log( resultSearch );
+    removeElement ( document.querySelector( '.select' ) );
+
+    let card = createCard ( objCard );
+
+    input.value = '';
+}
+
+function findObj ( resultSearch ) {
+
+    let options = document.querySelectorAll( '.option' );
+    let result = null;
+
+    for ( let i = 0; i < options.length; i++ ) {
+
+        if ( options[i] === event.target ) {
+
+            result = Object.assign( resultSearch[i] );
+        }
+    }
+
+    return result;
+}
+
+function clickButton( event ) {
+
+    removeElement ( event.target.closest( 'div' ) );
+}
+
+function createCard ( objCard ) {
+
+    let card = document.createElement( 'div' );
+    card.classList.add( 'card' );
+    card.classList.add( 'main__card' );
+    
+    for ( let key in cardInfoObject ) {
+
+        let cardItem = document.createElement( 'p' );
+        cardItem.classList.add( 'card__item' );
+        cardItem.textContent = `${ key }: ${ objCard[ cardInfoObject[ key ] ] }`;
+        card.append( cardItem );
+    }
+
+    let button = document.createElement( 'button' );
+    button.classList.add( 'card__button' );
+
+    let image = document.createElement( 'img' );
+    image.src = './img/close.svg';
+
+    button.append( image );
+
+    button.addEventListener( 'click', clickButton );
+    
+    card.append( button );
+
+    document.querySelector('.main').append( card );
+
+    return card;
 }
 
 function decoratorSelectClick ( callback, resultSearch ) {
@@ -54,14 +119,13 @@ function decoratorSelectClick ( callback, resultSearch ) {
 
         callback.call( this, ...arguments, resultSearch,  );
     }
-    //event.target.classList.add( 'option--selected' );
 }
 
-function selectRemove( select ) {
+function removeElement( elem ) {
 
-    if ( select ) {
+    if ( elem ) {
 
-        select.remove();
+        elem.remove();
     }
 }
 
@@ -70,7 +134,7 @@ function createSelect( responce ) {
     
     let option;
     
-    selectRemove( document.querySelector( '.select' ) );
+    removeElement( document.querySelector( '.select' ) );
 
     let select = document.createElement( 'select' );
 
@@ -86,9 +150,9 @@ function createSelect( responce ) {
     }
 
     select.classList.add( 'select' );
-    select.classList.add( 'main__select' );
+    select.classList.add( 'search__select' );
 
-    document.querySelector('.main').append(select);
+    document.querySelector('.search').append(select);
 
     return select;
 }
@@ -109,7 +173,6 @@ function debounceDecorator ( cb, delay ) {
                 timeoutHandler = setTimeout( () => {
                 
                 timeoutHandler = null;    
-                //resolve (cb.apply( context, args).then( result => result, reject => reject ).catch( reject => reject ) );
                 cb.apply( context, args).then( result => resolve( result ), error => reject( error ) );
             }, delay );
         } else {
@@ -118,7 +181,6 @@ function debounceDecorator ( cb, delay ) {
             timeoutHandler = setTimeout( () => {
                
                 timeoutHandler = null;    
-                //resolve ( cb.apply( context, args).then( result => result, reject => reject ).catch( reject => reject ) );
                 cb.apply( context, args).then( result => resolve( result ), error => reject( error ) );
             }, delay );
         }
@@ -126,7 +188,7 @@ function debounceDecorator ( cb, delay ) {
     }
 }
 
-async function send( message ){
+async function send( urlRequest, message ){
 
     if ( !message ) {
     
@@ -138,21 +200,25 @@ async function send( message ){
         throw new RequestError ( "Строка запроса содержит только пробелы", message );
     } 
 
-    let url = new URL ( 'https://api.github.com/search/repositories' )
+    let url = new URL ( urlRequest )
 
     url.searchParams.set( 'q', message );
 
-    console.log ( url );
+    try {
 
-    let response = await fetch( url );
+        let response = await fetch( url );
     
-    if( response.ok ) {
+        if( response.ok ) {
 
-        return response.json();
+            return response.json();
     
-    } else {
+        } else {
 
-        throw new HttpError ( 'Сетевая ошибка', response.status );
+            throw new HttpError ( 'Сетевая ошибка', response.status );
+        }
+    } catch ( error ) {
+
+        throw error;
     }
 }
 
@@ -196,9 +262,12 @@ function copyObj( obj, ...args ) {
 
     let result = {};
 
+    let strObjCopy = JSON.stringify( obj );
+    let objCopy = JSON.parse( strObjCopy );
+
     for ( let elem of args ) {
 
-        result[elem] = searchProperty( obj, elem );
+        result[elem] = searchProperty( objCopy, elem );
     }
 
     return result;

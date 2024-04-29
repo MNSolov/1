@@ -1,11 +1,14 @@
 .main {
 
+    box-sizing: border-box;
+
     display: block;
 
     width: 661px;
-    height: 763px;
+    min-height: 100%;
 
     padding-top: 1px;
+    padding-bottom: 50px;
 
     background-color: #C4C4C4;
 }
@@ -16,26 +19,37 @@
     margin-right: auto;
 }
 
-.main__input {
+.search {
+
+    position: relative;
+
+    z-index: 100;
+
+    width: 500px;
+    height: 61px;
+}
+
+.main__search {
 
     margin-top: 50px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 100px;
 }
 
 .input {
 
     display: block;
 
-    width: 500px;
-    height: 61px;
+    width: 100%;
+    height: 100%;
 
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', serif;
     font-weight: 400;
     font-size: 48px;
 }
 
-.main__input::placeholder {
+.input::placeholder {
 
     font-size: 32px;
     color: lightgray;
@@ -43,11 +57,12 @@
 
 .select {
 
+    position: absolute;
     display: block;
 
     width: 500px;
 
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', serif;
     font-weight: 400;
     font-size: 30px;
 
@@ -66,24 +81,59 @@
     background-color: #65CDF9;
 }
 
-.option--selected {
-
-    background-color: #65CDF9;
-}
-
-
 .option:hover {
 
     background-color: #65CDF9;
 }
 
-.option:optional {
-
-    background-color: #65CDF9;
-}
-
-.main__select {
+.search__select {
 
     margin-left: auto;
     margin-right: auto;
 }
+
+.main__card {
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card {
+
+    position: relative;
+    display: block;
+
+    padding: 10px;
+
+    width: 503px;
+
+    border: 1px solid black;
+    background-color: #E27BEB;
+
+    font-family: 'Roboto', 'Arial', serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+}
+
+.card__item {
+
+    margin: 0;
+}
+
+.card__button {
+
+    position: absolute;
+
+    top: 20px;
+    right: 20px;
+
+    border: none;
+
+    background-color: transparent;
+}
+
+.card__button:hover {
+
+    cursor: pointer;
+} 
