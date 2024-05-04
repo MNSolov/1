@@ -18,11 +18,8 @@ async function requestSearch() {
     let text = this.value;
     let responce;
 
-    if ( !text ) {
-
+    if ( !text )
         removeElement( document.querySelector( '.select' ) );
-        return;
-    }
 
     try {
         
@@ -35,7 +32,6 @@ async function requestSearch() {
         console.log ( error );
         responce = null;
 
-        removeElement( document.querySelector( '.select' ) );
         return;
     }
    
@@ -197,7 +193,7 @@ function debounceDecorator ( cb, delay ) {
 async function send( urlRequest, message ){
 
     if ( !message ) {
-    
+
         throw new RequestError ( "Строка запроса пуста", message );
     }
 
