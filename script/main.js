@@ -18,6 +18,12 @@ async function requestSearch() {
     let text = this.value;
     let responce;
 
+    if ( !text ) {
+
+        removeElement( document.querySelector( '.select' ) );
+        return;
+    }
+
     try {
         
         responce = await sendRequest ( urlRequest, text );
